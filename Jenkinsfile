@@ -10,6 +10,15 @@ pipeline {
             }
         }
         
+        stage ('Check git secrets') {
+            steps{
+                sh '''
+                    rm trufflehog || true
+                    docker run gesellix/trufflehog --json https://github.com/v7nc3nz/dvja.git | tee trufflehog
+                '''
+            }
+        }
+
         stage ('Build') {
             steps {
                 sh '''
@@ -46,7 +55,7 @@ pipeline {
                     sh '''
                         echo "Deploying App to Server"
                         docker-compose up -d
-                        '''
+                    '''
 
             }
         }
