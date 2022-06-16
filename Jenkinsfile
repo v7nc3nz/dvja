@@ -1,6 +1,10 @@
 pipeline {
     agent any
     
+    environment {
+        SNYK_TOKEN = credentials('SNYK_TOKEN')
+    }
+
     stages {
         
         stage ('Initialization') {
@@ -20,7 +24,7 @@ pipeline {
         
         stage ('SonarQube Analysis') {
             steps {
-		sh 'echo "SAST analysis"'
+		        sh 'echo "SAST analysis"'
                 }
             }    
         
@@ -30,15 +34,14 @@ pipeline {
             }
         }
         
-        stage ('Dependency-Check Analysis') {
-            steps {
-                sh 'echo "Dependency check"'
-            }
-        }
         
         stage ('Snyk Analysis') {
             steps {
-		sh 'echo Snyk analysis'
+		        sh 'echo Snyk analysis'
+                sh '''
+                ./snyk test --json | snyk-to-html -o results.html
+                cp results.html /root/workspace/DevSecOps/report
+                '''
             }
         }
                 
@@ -50,6 +53,10 @@ pipeline {
                         '''
 
             }
+        }
+
+        stage ('DAST - OWASP ZAP baseline') {
+            sh 'docker run -t owasp/zap2docker-stable zap-baseline.py -t http://128.199.21.116:8080/'
         }
     }
 }
