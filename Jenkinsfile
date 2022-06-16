@@ -13,8 +13,8 @@ pipeline {
         stage ('Check git secrets') {
             steps{
                 sh '''
-                    rm trufflehog || true
-                    docker run gesellix/trufflehog --json https://github.com/v7nc3nz/dvja.git | tee trufflehog
+                    rm trufflehog.json || true
+                    docker run gesellix/trufflehog --json https://github.com/v7nc3nz/dvja.git | tee trufflehog.json
                 '''
             }
         }
@@ -44,9 +44,11 @@ pipeline {
         stage ('Snyk Analysis') {
             steps {
 		        sh 'echo Snyk analysis'
-                sh '''
-                ./snyk test --json
-                '''
+                snykSecurity(
+                snykInstallation: 'snyk',
+                snykTokenId: 'SNYK_TOKEN',
+                failOnIssues: false
+        )
             }
         }
                 
