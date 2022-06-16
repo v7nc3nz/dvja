@@ -22,26 +22,25 @@ pipeline {
                 scannerHome = tool 'SonarQube Scanner'
             }
             steps {
-		sh 'SAST analysis'
+		sh 'echo "SAST analysis"'
                 }
             }    
-        }
         
         stage ('Retire.js Analysis') {
             steps {
-                sh 'retire --path `pwd` --outputformat json --outputpath /var/lib/jenkins/reports/retirejs-report --exitwith 0'
+                sh 'echo "check for retire js"'
             }
         }
         
         stage ('Dependency-Check Analysis') {
             steps {
-                sh '/var/lib/jenkins/dependency-check/bin/dependency-check.sh --scan `pwd` --format JSON --out /var/lib/jenkins/reports/dependency-check-report --prettyPrint'
+                sh 'echo "Dependency check"'
             }
         }
         
         stage ('Snyk Analysis') {
             steps {
-                sh '/home/chaos/snyk.sh'
+		sh 'echo Snyk analysis'
             }
         }
                 
