@@ -32,14 +32,13 @@ pipeline {
             steps {
 		        sh 'echo "SAST analysis"'
                 }
-            }    
-        
+            }
+            
         stage ('Retire.js Analysis') {
             steps {
-                sh 'echo "check for retire js"'
+                sh 'retire --path . --outputformat json | tee retire.json'
             }
-        }
-        
+        }    
         
         stage ('Snyk Analysis') {
             steps {
@@ -51,7 +50,7 @@ pipeline {
         )
             }
         }
-                
+
         stage ('Deploy to App Server') {
             steps {
                     sh '''
