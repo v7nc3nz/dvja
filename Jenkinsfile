@@ -46,7 +46,7 @@ pipeline {
             steps {
                     sh '''
                         echo "Deploying App to Server"
-                        docker-compose up
+                        docker-compose up -d
                         '''
 
             }
