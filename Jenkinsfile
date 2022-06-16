@@ -56,7 +56,9 @@ pipeline {
         }
 
         stage ('DAST - OWASP ZAP baseline') {
-            sh 'docker run -t owasp/zap2docker-stable zap-baseline.py -t http://128.199.21.116:8080/'
+            steps {
+                sh 'docker run -t owasp/zap2docker-stable zap-baseline.py -t http://128.199.21.116:8080/'
+            }
         }
     }
 }
