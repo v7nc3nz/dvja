@@ -18,9 +18,6 @@ pipeline {
         }
         
         stage ('SonarQube Analysis') {
-            environment {
-                scannerHome = tool 'SonarQube Scanner'
-            }
             steps {
 		sh 'echo "SAST analysis"'
                 }
