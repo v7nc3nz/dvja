@@ -40,7 +40,6 @@ pipeline {
 		        sh 'echo Snyk analysis'
                 sh '''
                 ./snyk test --json | snyk-to-html -o results.html
-                cp results.html /root/workspace/DevSecOps/report
                 '''
             }
         }
