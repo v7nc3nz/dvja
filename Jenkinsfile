@@ -45,7 +45,7 @@ pipeline {
             steps {
 		        sh 'echo Snyk analysis'
                 sh '''
-                ./snyk test --json | snyk-to-html -o results.html
+                ./snyk test --json
                 '''
             }
         }
@@ -62,6 +62,7 @@ pipeline {
 
         stage ('DAST - OWASP ZAP baseline') {
             steps {
+                sh 'sleep(10)'
                 sh 'docker run -t owasp/zap2docker-stable zap-baseline.py -t http://128.199.21.116:8080/ || true'
             }
         }
