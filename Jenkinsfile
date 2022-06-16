@@ -12,7 +12,8 @@ pipeline {
         stage ('Build') {
             steps {
                 sh '''
-                    echo building
+                    echo "Building Application"
+                    docker-compose build 
                    '''
             }
         }
@@ -43,7 +44,11 @@ pipeline {
                 
         stage ('Deploy to App Server') {
             steps {
-                    sh 'echo "Deploying App to Server"'
+                    sh '''
+                        echo "Deploying App to Server"
+                        docker-compose up
+                        '''
+
             }
         }
     }
