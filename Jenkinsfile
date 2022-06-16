@@ -23,7 +23,6 @@ pipeline {
             }
             steps {
                 withSonarQubeEnv ('SonarQube') {
-			sh 'echo Static Analysis'
                     sh '${scannerHome}/bin/sonar-scanner'
                     sh 'cat .scannerwork/report-task.txt > /var/lib/jenkins/reports/sonarqube-report'
                 }
