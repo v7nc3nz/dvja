@@ -36,7 +36,7 @@ pipeline {
 
         stage ('Retire.js Analysis') {
             steps {
-                sh 'retire --path . --outputformat json | tee retire.json'
+                sh 'retire --outputformat json | tee retire.json'
             }
         }    
         
