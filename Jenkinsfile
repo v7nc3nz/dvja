@@ -33,7 +33,7 @@ pipeline {
 		        sh 'echo "SAST analysis"'
                 }
             }
-            
+
         stage ('Retire.js Analysis') {
             steps {
                 sh 'retire --path . --outputformat json | tee retire.json'
@@ -64,6 +64,12 @@ pipeline {
         stage ('DAST - OWASP ZAP baseline') {
             steps {
                 sh 'docker run -t owasp/zap2docker-stable zap-baseline.py -t http://128.199.21.116:8080/ || true'
+            }
+        }
+
+        stage ('Send reports to DefectDojo') {
+            steps {
+                sh 'echo "Reports send"'
             }
         }
     }
