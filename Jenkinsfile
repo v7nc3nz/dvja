@@ -31,13 +31,11 @@ pipeline {
         stage ('SonarQube Analysis') {
             steps {
 		        sh 'echo "SAST analysis"'
-                sh 'echo SNYK_TOKEN'
                 }
             }
 
         stage ('Retire.js Analysis') {
             steps {
-                sh 'rm -rf /tmp/*'
                 sh 'retire --outputformat json | tee retire.json'
             }
         }    
