@@ -169,6 +169,9 @@
                         </systemProperty>
                     </systemProperties>
                     <scanIntervalSeconds>10</scanIntervalSeconds>
+                    <httpConnector>
+                        <port>8888</port>
+                    </httpConnector>
                     <webAppSourceDirectory>${basedir}/src/main/webapp/</webAppSourceDirectory>
                     <webAppConfig>
                         <descriptor>${basedir}/src/main/webapp/WEB-INF/web.xml</descriptor>
