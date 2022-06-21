@@ -15,7 +15,7 @@ pipeline {
                 sh '''
                     rm trufflehog.json || true
                     docker run gesellix/trufflehog --json https://github.com/v7nc3nz/dvja.git | tee trufflehog.json
-                    docker container ls -a | grep gesellix/trufflehog | awk -F" " '{print $1}' | xargs docker container rm || true
+                    docker rm $(docker ps -a -f status=exited -q) || true
                 '''
             }
         }
@@ -35,18 +35,22 @@ pipeline {
                 }
             }
 
-        stage ('Retire.js Analysis') {
-            steps {
-                sh 'retire --outputformat json | tee retire.json'
+        stage ('Source Composition Analysis') {
+            parallel {
+                stage ('Retire.js Analysis') {
+                    steps {
+                        sh 'retire --outputformat json | tee retire.json'
+                    }
+                }    
+        
+                stage ('Snyk Analysis') {
+                    steps {
+		                sh 'echo Snyk analysis'
+                        snykSecurity(snykInstallation: 'snyk', snykTokenId: 'SNYK_TOKEN', failOnIssues: false)
+                    }
+                }
             }
         }    
-        
-        stage ('Snyk Analysis') {
-            steps {
-		        sh 'echo Snyk analysis'
-                snykSecurity(snykInstallation: 'snyk', snykTokenId: 'SNYK_TOKEN', failOnIssues: false)
-            }
-        }
 
         stage ('Deploy to App Server') {
             steps {
@@ -64,26 +68,32 @@ pipeline {
                 steps {
                     sh '''
                     sleep 20
-                    docker run -t owasp/zap2docker-stable zap-baseline.py -t http://128.199.21.116:8888/ || true
-                    docker container ls -a | grep zap2docker | awk -F" " '{print $1}' | xargs docker container rm || true
+                    docker pull owasp/zap2docker-live
+
+                    echo DEBUG - mkdir -p $PWD/out
+                    mkdir -p $PWD/out
+
+                    echo DEBUG - chmod 777 $PWD/out
+                    chmod 777 $PWD/out
+                    docker run -v $(pwd)/out:/zap/wrk/:rw -t owasp/zap2docker-live zap-api-scan.py -t $TARGET_URL -f openapi -d -r zap_scan_report.html
+                    docker rm $(docker ps -a -f status=exited -q) || true
                     '''
                     }
                 }
 
-            stage ('Nikto Scan') {
+            stage ('Nuclei Scan') {
 		        steps {
-			        sh 'rm nikto-output.xml || true'
-			        sh 'docker pull secfigo/nikto:latest'
-			        sh 'docker run --user $(id -u):$(id -g) --rm -v $(pwd):/report -i secfigo/nikto:latest -h 54.86.226.84 -p 8080 -output /report/nikto-output.xml'
-			        sh 'cat nikto-output.xml'   
+			        sh '''
+                        nuclei -u http://128.199.21.116:8888/ -json -o nuclei.json -silent || true
+                    '''   
 		        }
 	        }
 	    
 	        stage ('SSL Checks') {
 		        steps {
-			        sh 'pip install sslyze==1.4.2'
-			        sh 'python -m sslyze --regular 128.199.21.116:8888 --json_out sslyze-output.json'
-			        sh 'cat sslyze-output.json'
+			        sh '''pip install sslyze'
+			        python3 -m sslyze 128.199.21.116:8888 --json_out sslyze-output.json || true
+                    '''
 		            }
 	            }
             }
