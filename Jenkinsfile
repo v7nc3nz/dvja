@@ -75,7 +75,7 @@ pipeline {
 
                     echo DEBUG - chmod 777 $PWD/out
                     chmod 777 $PWD/out
-                    docker run -v $(pwd)/out:/zap/wrk/:rw -t owasp/zap2docker-live zap-api-scan.py -t $TARGET_URL -f openapi -d -r zap_scan_report.html
+                    docker run -v $(pwd)/out:/zap/wrk/:rw -t owasp/zap2docker-live zap-api-scan.py -t http://128.199.21.116:8888/ -f openapi -d -r zap_scan_report.html
                     docker rm $(docker ps -a -f status=exited -q) || true
                     '''
                     }
