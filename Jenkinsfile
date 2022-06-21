@@ -15,7 +15,7 @@ pipeline {
                 sh '''
                     rm trufflehog.json || true
                     docker run gesellix/trufflehog --json https://github.com/v7nc3nz/dvja.git | tee trufflehog.json
-                    docker container ls -a | grep Exited | awk -F" " '{print $1}' | xargs docker container rm
+                    docker container ls -a | grep gesellix/trufflehog | awk -F" " '{print $1}' | xargs docker container rm || true
                 '''
             }
         }
@@ -63,7 +63,7 @@ pipeline {
                 sh '''
                     sleep 20
                     docker run -t owasp/zap2docker-stable zap-baseline.py -t http://128.199.21.116:8888/ || true
-                    docker container ls -a | grep Exited | awk -F" " '{print $1}' | xargs docker container rm
+                    docker container ls -a | grep zap2docker | awk -F" " '{print $1}' | xargs docker container rm || true
                 '''
             }
         }
