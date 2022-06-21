@@ -15,6 +15,7 @@ pipeline {
                 sh '''
                     rm trufflehog.json || true
                     docker run gesellix/trufflehog --json https://github.com/v7nc3nz/dvja.git | tee trufflehog.json
+                    docker container ls -a | grep Exited | awk -F" " '{print $1}' | xargs docker container rm
                 '''
             }
         }
@@ -43,11 +44,7 @@ pipeline {
         stage ('Snyk Analysis') {
             steps {
 		        sh 'echo Snyk analysis'
-                snykSecurity(
-                snykInstallation: 'snyk',
-                snykTokenId: 'SNYK_TOKEN',
-                failOnIssues: false
-        )
+                snykSecurity(snykInstallation: 'snyk', snykTokenId: 'SNYK_TOKEN', failOnIssues: false)
             }
         }
 
@@ -63,14 +60,25 @@ pipeline {
 
         stage ('DAST - OWASP ZAP baseline') {
             steps {
-                sh 'sleep 20'
-                sh 'docker run -t owasp/zap2docker-stable zap-baseline.py -t http://128.199.21.116:8888/ || true'
+                sh '''
+                    sleep 20
+                    docker run -t owasp/zap2docker-stable zap-baseline.py -t http://128.199.21.116:8888/ || true
+                    docker container ls -a | grep Exited | awk -F" " '{print $1}' | xargs docker container rm
+                '''
             }
         }
 
         stage ('Send reports to DefectDojo') {
             steps {
-                sh 'echo "Reports send"'
+                sh '''
+                    curl --location --request POST 'http://localhost:8080/api/v2/import-scan/' \
+                    --header "Authorization: Token $TOKEN" \
+                    --form 'engagement=25' \
+                    --form 'verified=true' \
+                    --form 'active=true' \
+                    --form 'scan_type=Snyk Scan' \
+                    --form 'file=@snyk.json'
+                '''
             }
         }
     }
